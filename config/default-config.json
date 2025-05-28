@@ -1,0 +1,64 @@
+{
+  "folders": {
+    "ID1": {
+      "path": "",
+      "hotkey": "CommandOrControl+Alt+1",
+      "label": "Documents"
+    },
+    "ID2": {
+      "path": "",
+      "hotkey": "CommandOrControl+Alt+2", 
+      "label": "Downloads"
+    },
+    "ID3": {
+      "path": "",
+      "hotkey": "CommandOrControl+Alt+3",
+      "label": "Desktop"
+    },
+    "ID4": {
+      "path": "",
+      "hotkey": "CommandOrControl+Alt+4",
+      "label": "Projects"
+    },
+    "ID5": {
+      "path": "",
+      "hotkey": "CommandOrControl+Alt+5",
+      "label": "Pictures"
+    },
+    "ID6": {
+      "path": "",
+      "hotkey": "CommandOrControl+Alt+6",
+      "label": "Music"
+    },
+    "ID7": {
+      "path": "",
+      "hotkey": "CommandOrControl+Alt+7",
+      "label": "Videos"
+    },
+    "ID8": {
+      "path": "",
+      "hotkey": "CommandOrControl+Alt+8",
+      "label": "Folder 8"
+    },
+    "ID9": {
+      "path": "",
+      "hotkey": "CommandOrControl+Alt+9",
+      "label": "Folder 9"
+    },
+    "ID10": {
+      "path": "",
+      "hotkey": "CommandOrControl+Alt+0",
+      "label": "Folder 10"
+    },
+    "ID11": {
+      "path": "",
+      "hotkey": "CommandOrControl+Alt+Minus",
+      "label": "Folder 11"
+    },
+    "ID12": {
+      "path": "",
+      "hotkey": "CommandOrControl+Alt+Equal",
+      "label": "Folder 12"
+    }
+  }
+}

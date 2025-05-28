@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotkey Folder Manager</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #27ae60, #229954);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+            min-height: 300px;
+        }
+
+        .folder-btn {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .folder-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: #3498db;
+        }
+
+        .folder-btn.configured {
+            background: linear-gradient(145deg, #e8f5e8, #d4edda);
+            border-color: #27ae60;
+        }
+
+        .folder-btn.configured:hover {
+            border-color: #229954;
+        }
+
+        .folder-icon {
+            font-size: 2rem;
+            color: #3498db;
+            margin-bottom: 8px;
+        }
+
+        .folder-btn.configured .folder-icon {
+            color: #27ae60;
+        }
+
+        .folder-id {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+
+        .folder-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 3px;
+            word-break: break-word;
+        }
+
+        .folder-path {
+            font-size: 0.7rem;
+            color: #95a5a6;
+            word-break: break-all;
+            line-height: 1.2;
+        }
+
+        .folder-hotkey {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .folder-btn.configured .folder-hotkey {
+            background: rgba(39, 174, 96, 0.1);
+            color: #27ae60;
+        }
+
+        .config-panel {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 20px;
+            border: 1px solid #e9ecef;
+        }
+
+        .config-panel h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .status-bar {
+            background: #2c3e50;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .hotkey-display {
+            background: rgba(52, 152, 219, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #3498db;
+        }
+
+        .hotkey-display h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .hotkey-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .hotkey-item {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hotkey-key {
+            font-weight: 700;
+            color: #3498db;
+        }
+
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: repeat(3, 1fr);
+                grid-template-rows: repeat(4, 1fr);
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useCallback } = React;
+
+        // Default configuration
+        const defaultConfig = {
+            folders: {
+                ID1: { path: "", hotkey: "Ctrl+Alt+1", label: "Folder 1" },
+                ID2: { path: "", hotkey: "Ctrl+Alt+2", label: "Folder 2" },
+                ID3: { path: "", hotkey: "Ctrl+Alt+3", label: "Folder 3" },
+                ID4: { path: "", hotkey: "Ctrl+Alt+4", label: "Folder 4" },
+                ID5: { path: "", hotkey: "Ctrl+Alt+5", label: "Folder 5" },
+                ID6: { path: "", hotkey: "Ctrl+Alt+6", label: "Folder 6" },
+                ID7: { path: "", hotkey: "Ctrl+Alt+7", label: "Folder 7" },
+                ID8: { path: "", hotkey: "Ctrl+Alt+8", label: "Folder 8" },
+                ID9: { path: "", hotkey: "Ctrl+Alt+9", label: "Folder 9" },
+                ID10: { path: "", hotkey: "Ctrl+Alt+0", label: "Folder 10" },
+                ID11: { path: "", hotkey: "Ctrl+Alt+-", label: "Folder 11" },
+                ID12: { path: "", hotkey: "Ctrl+Alt+=", label: "Folder 12" }
+            }
+        };
+
+        function HotkeyFolderManager() {
+            const [config, setConfig] = useState(defaultConfig);
+            const [selectedFolder, setSelectedFolder] = useState(null);
+            const [showConfig, setShowConfig] = useState(false);
+            const [status, setStatus] = useState("Ready - Click a folder button or use hotkeys");
+
+            // Load configuration from localStorage
+            useEffect(() => {
+                const savedConfig = localStorage.getItem('folderManagerConfig');
+                if (savedConfig) {
+                    try {
+                        setConfig(JSON.parse(savedConfig));
+                    } catch (error) {
+                        console.error('Failed to load configuration:', error);
+                        setStatus("Error loading configuration, using defaults");
+                    }
+                }
+            }, []);
+
+            // Save configuration to localStorage
+            const saveConfig = useCallback((newConfig) => {
+                localStorage.setItem('folderManagerConfig', JSON.stringify(newConfig));
+                setConfig(newConfig);
+                setStatus("Configuration saved!");
+            }, []);
+
+            // Handle hotkey presses
+            useEffect(() => {
+                const handleKeyPress = (e) => {
+                    const pressedKey = `${e.ctrlKey ? 'Ctrl+' : ''}${e.altKey ? 'Alt+' : ''}${e.shiftKey ? 'Shift+' : ''}${e.key}`;
+                    
+                    Object.entries(config.folders).forEach(([id, folder]) => {
+                        if (folder.hotkey === pressedKey && folder.path) {
+                            e.preventDefault();
+                            openFolder(id, folder);
+                        }
+                    });
+                };
+
+                document.addEventListener('keydown', handleKeyPress);
+                return () => document.removeEventListener('keydown', handleKeyPress);
+            }, [config]);
+
+            // Open folder function
+            const openFolder = (id, folder) => {
+                if (!folder.path) {
+                    setStatus(`${id}: No path configured`);
+                    return;
+                }
+
+                setStatus(`Opening ${folder.label}: ${folder.path}`);
+                
+                // In a real desktop app, this would open the file explorer
+                // For web demo, we'll show an alert and log the action
+                console.log(`Opening folder ${id}:`, folder);
+                
+                // Simulated file explorer opening
+                if (typeof window.electronAPI !== 'undefined') {
+                    // Electron API call
+                    window.electronAPI.openFolder(folder.path);
+                } else {
+                    // Web browser fallback - show notification
+                    alert(`Would open: ${folder.path}\n\nIn a desktop app, this would open your file explorer.`);
+                }
+            };
+
+            // Update folder configuration
+            const updateFolder = (id, updates) => {
+                const newConfig = {
+                    ...config,
+                    folders: {
+                        ...config.folders,
+                        [id]: { ...config.folders[id], ...updates }
+                    }
+                };
+                saveConfig(newConfig);
+            };
+
+            // Export configuration
+            const exportConfig = () => {
+                const dataStr = JSON.stringify(config, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'folder-manager-config.json';
+                link.click();
+                URL.revokeObjectURL(url);
+                setStatus("Configuration exported!");
+            };
+
+            // Import configuration
+            const importConfig = (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const importedConfig = JSON.parse(e.target.result);
+                        if (importedConfig.folders) {
+                            saveConfig(importedConfig);
+                            setStatus("Configuration imported successfully!");
+                        } else {
+                            setStatus("Invalid configuration file format");
+                        }
+                    } catch (error) {
+                        setStatus("Error importing configuration");
+                    }
+                };
+                reader.readAsText(file);
+                event.target.value = ''; // Reset file input
+            };
+
+            return (
+                <div className="container">
+                    <div className="header">
+                        <h1><i className="fas fa-rocket"></i> Hotkey Folder Manager</h1>
+                        <p>Quick access to your favorite folders with customizable hotkeys</p>
+                    </div>
+
+                    <div className="controls">
+                        <button 
+                            className="btn btn-primary"
+                            onClick={() => setShowConfig(!showConfig)}
+                        >
+                            <i className="fas fa-cog"></i>
+                            {showConfig ? 'Hide Config' : 'Show Config'}
+                        </button>
+                        <button 
+                            className="btn btn-secondary"
+                            onClick={exportConfig}
+                        >
+                            <i className="fas fa-download"></i>
+                            Export Config
+                        </button>
+                        <label className="btn btn-secondary" style={{cursor: 'pointer'}}>
+                            <i className="fas fa-upload"></i>
+                            Import Config
+                            <input 
+                                type="file" 
+                                accept=".json" 
+                                onChange={importConfig}
+                                style={{display: 'none'}}
+                            />
+                        </label>
+                    </div>
+
+                    <div className="grid-container">
+                        {Object.entries(config.folders).map(([id, folder]) => (
+                            <div
+                                key={id}
+                                className={`folder-btn ${folder.path ? 'configured' : ''}`}
+                                onClick={() => openFolder(id, folder)}
+                                title={folder.path || 'Not configured'}
+                            >
+                                <div className="folder-hotkey">{folder.hotkey}</div>
+                                <div className="folder-icon">
+                                    <i className={folder.path ? "fas fa-folder" : "far fa-folder"}></i>
+                                </div>
+                                <div className="folder-id">{id}</div>
+                                <div className="folder-label">{folder.label}</div>
+                                {folder.path && (
+                                    <div className="folder-path">
+                                        {folder.path.length > 30 ? 
+                                            '...' + folder.path.slice(-27) : 
+                                            folder.path
+                                        }
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+
+                    {showConfig && (
+                        <div className="config-panel">
+                            <h3><i className="fas fa-sliders-h"></i> Configuration Panel</h3>
+                            
+                            <div style={{marginBottom: '20px'}}>
+                                <label style={{marginBottom: '10px', display: 'block'}}>Select Folder to Configure:</label>
+                                <select 
+                                    value={selectedFolder || ''}
+                                    onChange={(e) => setSelectedFolder(e.target.value || null)}
+                                    style={{
+                                        width: '100%',
+                                        padding: '10px 12px',
+                                        border: '2px solid #e9ecef',
+                                        borderRadius: '6px',
+                                        fontSize: '1rem'
+                                    }}
+                                >
+                                    <option value="">Choose a folder slot...</option>
+                                    {Object.keys(config.folders).map(id => (
+                                        <option key={id} value={id}>
+                                            {id} - {config.folders[id].label}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {selectedFolder && (
+                                <div>
+                                    <div className="form-group">
+                                        <label>Label:</label>
+                                        <input
+                                            type="text"
+                                            value={config.folders[selectedFolder].label}
+                                            onChange={(e) => updateFolder(selectedFolder, { label: e.target.value })}
+                                            placeholder="Enter folder label"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Folder Path:</label>
+                                        <input
+                                            type="text"
+                                            value={config.folders[selectedFolder].path}
+                                            onChange={(e) => updateFolder(selectedFolder, { path: e.target.value })}
+                                            placeholder="e.g., C:\Users\YourName\Documents"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Hotkey:</label>
+                                        <input
+                                            type="text"
+                                            value={config.folders[selectedFolder].hotkey}
+                                            onChange={(e) => updateFolder(selectedFolder, { hotkey: e.target.value })}
+                                            placeholder="e.g., Ctrl+Alt+1"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="hotkey-display">
+                                <h4><i className="fas fa-keyboard"></i> Active Hotkeys</h4>
+                                <div className="hotkey-list">
+                                    {Object.entries(config.folders)
+                                        .filter(([id, folder]) => folder.path)
+                                        .map(([id, folder]) => (
+                                        <div key={id} className="hotkey-item">
+                                            <span>{folder.label}</span>
+                                            <span className="hotkey-key">{folder.hotkey}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="status-bar">
+                        <i className="fas fa-info-circle"></i> Status: {status}
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<HotkeyFolderManager />, document.getElementById('root'));
+    </script>
+</body>
+</html>
